@@ -7,7 +7,7 @@
 #define DAY_BRIGHTNESS 0.85
 #endif
 #ifndef NIGHT_BRIGHTNESS
-#define NIGHT_BRIGHTNESS 0.6
+#define NIGHT_BRIGHTNESS 0.3
 #endif
 #ifndef TORCH_COLOR_R
 #define TORCH_COLOR_R 1.0
@@ -98,24 +98,26 @@ void main() {
 
     float rainDarkness = rainStrength * 0.4 + wetness * 0.2;
 
+    // ใช้ NIGHT_BRIGHTNESS setting แล้ว
     vec3 skyAmbDay   = vec3(0.50, 0.70, 1.00) * sl2 * 0.45 * DAY_BRIGHTNESS * (1.0 - rainDarkness);
-    vec3 skyAmbNight = vec3(0.05, 0.05, 0.20) * sl2 * 0.35 * NIGHT_BRIGHTNESS;
-    vec3 skyAmb = mix(skyAmbNight, skyAmbDay, dayFactor);
+    vec3 skyAmbNight = vec3(0.05, 0.05, 0.15) * sl2 * 0.25 * NIGHT_BRIGHTNESS;
+    vec3 skyAmb = mix(skyAmbDay, skyAmbNight, nightFactor);
 
     vec3 torchColor = vec3(TORCH_COLOR_R, TORCH_COLOR_G, TORCH_COLOR_B);
     float torchMul = mix(0.60, TORCH_STRENGTH * 0.6, nightFactor);
     vec3 torchC = torchColor * (bl2 * torchMul);
 
-    vec3 nightFloor = vec3(0.08, 0.08, 0.18) * nightFactor * NIGHT_BRIGHTNESS;
-    vec3 ambient = albedo.rgb * (skyAmb + torchC + vec3(0.04)) + albedo.rgb * nightFloor;
+    // Night floor ปรับให้มืดลงตาม NIGHT_BRIGHTNESS
+    vec3 nightFloor = vec3(0.04, 0.04, 0.10) * nightFactor * NIGHT_BRIGHTNESS * 0.5;
+    vec3 ambient = albedo.rgb * (skyAmb + torchC + vec3(0.03)) + albedo.rgb * nightFloor;
 
     vec3 sunCol;
-    if (tod < 0.10)       sunCol = mix(vec3(1.00, 0.50, 0.15), vec3(1.00, 0.85, 0.50), tod / 0.10);
+    if (tod < 0.10)       sunCol = mix(vec3(0.60, 0.30, 0.10), vec3(1.00, 0.85, 0.50), tod / 0.10);
     else if (tod < 0.25)  sunCol = mix(vec3(1.00, 0.85, 0.50), vec3(1.00, 0.98, 0.90), (tod - 0.10) / 0.15);
     else if (tod < 0.45)  sunCol = vec3(1.00, 0.97, 0.85);
-    else if (tod < 0.55)  sunCol = mix(vec3(1.00, 0.97, 0.85), vec3(1.00, 0.55, 0.20), (tod - 0.45) / 0.10);
-    else if (tod < 0.75)  sunCol = mix(vec3(1.00, 0.55, 0.20), vec3(0.12, 0.15, 0.35), (tod - 0.55) / 0.20);
-    else                  sunCol = vec3(0.12, 0.15, 0.35);
+    else if (tod < 0.55)  sunCol = mix(vec3(1.00, 0.97, 0.85), vec3(0.40, 0.30, 0.20), (tod - 0.45) / 0.10);
+    else if (tod < 0.75)  sunCol = mix(vec3(0.40, 0.30, 0.20), vec3(0.05, 0.05, 0.15), (tod - 0.55) / 0.20);
+    else                  sunCol = vec3(0.05, 0.05, 0.15);
 
     float dirLight = max(dot(norm, normalize(vec3(0.55, 1.0, 0.4))), 0.0);
     float shadow = 1.0;
