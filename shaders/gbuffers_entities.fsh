@@ -10,7 +10,7 @@
 #define DAY_BRIGHTNESS 0.85
 #endif
 #ifndef NIGHT_BRIGHTNESS
-#define NIGHT_BRIGHTNESS 0.6
+#define NIGHT_BRIGHTNESS 0.3
 #endif
 #ifndef TORCH_COLOR_R
 #define TORCH_COLOR_R 1.0
@@ -54,30 +54,32 @@ void main() {
     float sl2 = sl * sl;
     float bl2 = bl * bl;
 
+    // Use NIGHT_BRIGHTNESS setting
     vec3 skyAmbDay   = vec3(0.60, 0.85, 1.00) * sl2 * 0.65 * DAY_BRIGHTNESS;
-    vec3 skyAmbNight = vec3(0.10, 0.10, 0.35) * sl2 * 0.50 * NIGHT_BRIGHTNESS;
+    vec3 skyAmbNight = vec3(0.06, 0.06, 0.15) * sl2 * 0.30 * NIGHT_BRIGHTNESS;
     vec3 skyAmb = mix(skyAmbDay, skyAmbNight, nightFactor);
 
     vec3 torchColor = vec3(TORCH_COLOR_R, TORCH_COLOR_G, TORCH_COLOR_B);
     float torchMul = mix(0.80, TORCH_STRENGTH * 0.6, nightFactor);
     vec3 torchC = torchColor * (bl2 * torchMul);
 
-    vec3 nightFloor = vec3(0.15, 0.15, 0.30) * nightFactor * NIGHT_BRIGHTNESS;
-    vec3 ambient = albedo.rgb * (skyAmb + torchC + vec3(0.06)) + albedo.rgb * nightFloor;
+    // Night floor darker with NIGHT_BRIGHTNESS
+    vec3 nightFloor = vec3(0.08, 0.08, 0.15) * nightFactor * NIGHT_BRIGHTNESS * 0.5;
+    vec3 ambient = albedo.rgb * (skyAmb + torchC + vec3(0.04)) + albedo.rgb * nightFloor;
 
     vec3 sunCol;
     if (tod < 0.10) {
-        sunCol = mix(vec3(1.00, 0.55, 0.20), vec3(1.00, 0.90, 0.60), tod / 0.10);
+        sunCol = mix(vec3(0.60, 0.30, 0.10), vec3(1.00, 0.90, 0.60), tod / 0.10);
     } else if (tod < 0.25) {
         sunCol = mix(vec3(1.00, 0.90, 0.60), vec3(1.00, 0.98, 0.95), (tod - 0.10) / 0.15);
     } else if (tod < 0.45) {
         sunCol = vec3(1.00, 0.98, 0.95);
     } else if (tod < 0.55) {
-        sunCol = mix(vec3(1.00, 0.98, 0.95), vec3(1.00, 0.50, 0.15), (tod - 0.45) / 0.10);
+        sunCol = mix(vec3(1.00, 0.98, 0.95), vec3(0.40, 0.30, 0.20), (tod - 0.45) / 0.10);
     } else if (tod < 0.75) {
-        sunCol = mix(vec3(1.00, 0.50, 0.15), vec3(0.15, 0.18, 0.40), (tod - 0.55) / 0.20);
+        sunCol = mix(vec3(0.40, 0.30, 0.20), vec3(0.08, 0.08, 0.18), (tod - 0.55) / 0.20);
     } else {
-        sunCol = vec3(0.15, 0.18, 0.40);
+        sunCol = vec3(0.08, 0.08, 0.18);
     }
 
 #if ENABLE_DIRLIGHT == 1
