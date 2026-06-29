@@ -1,7 +1,10 @@
 #version 120
-varying vec2 uv; varying vec4 col;
+
+varying vec2 texcoord;
+varying vec4 glcolor;
+
 void main() {
+    texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+    glcolor = gl_Color;
     gl_Position = ftransform();
-    uv = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-    col = gl_Color;
 }

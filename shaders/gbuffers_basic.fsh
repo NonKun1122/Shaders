@@ -1,3 +1,7 @@
 #version 120
-varying vec4 col;
-void main() { gl_FragColor = col; }
+
+varying vec4 glcolor;
+
+void main() {
+    gl_FragData[0] = glcolor;
+}

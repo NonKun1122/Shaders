@@ -6,7 +6,7 @@ varying vec4 color;
 uniform sampler2D texture;
 
 void main() {
-    vec4 texColor = texture2D(texture, texCoord);
+    vec4 texColor = texture2D(texture, texCoord) * color;
     if (texColor.a < 0.1) discard;
-    gl_FragData[0] = texColor * color;
+    gl_FragData[0] = texColor;
 }

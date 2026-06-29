@@ -1,13 +1,14 @@
 #version 120
 
 uniform sampler2D texture;
-uniform int worldTime;
+uniform int   worldTime;
+uniform float frameTimeCounter;
 
-varying vec2 uv;
-varying vec4 col;
+varying vec2  uv;
+varying vec4  col;
 
 #ifndef NIGHT_BRIGHTNESS
-#define NIGHT_BRIGHTNESS 0.6
+#define NIGHT_BRIGHTNESS 0.3
 #endif
 
 void main() {
@@ -16,16 +17,18 @@ void main() {
 
     float tod = mod(float(worldTime), 24000.0) / 24000.0;
 
-    float nightFactor;
-    if (tod > 0.55 && tod < 0.95) nightFactor = 1.0;
-    else if (tod > 0.45 && tod < 0.55) nightFactor = smoothstep(0.45, 0.55, tod);
-    else if (tod > 0.95) nightFactor = 1.0 - smoothstep(0.95, 1.0, tod);
-    else nightFactor = 0.0;
+    float dayFactor;
+    if      (tod < 0.45) dayFactor = 1.0;
+    else if (tod < 0.55) dayFactor = 1.0 - smoothstep(0.45, 0.55, tod);
+    else if (tod > 0.95) dayFactor = smoothstep(0.95, 1.0, tod);
+    else                 dayFactor = 0.0;
+    float nightFactor = 1.0 - dayFactor;
 
     vec3 color = albedo.rgb;
 
-    // Darken hand at night
-    color *= mix(1.0, NIGHT_BRIGHTNESS * 0.8, nightFactor);
+    // กลางคืน: มืดลงตาม NIGHT_BRIGHTNESS แต่ไม่มืดสนิท (fill 0.15)
+    float nightMul = mix(1.0, max(NIGHT_BRIGHTNESS * 0.9, 0.15), nightFactor);
+    color *= nightMul;
 
     gl_FragColor = vec4(color, albedo.a);
 }

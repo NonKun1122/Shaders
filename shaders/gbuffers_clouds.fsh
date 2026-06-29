@@ -1,6 +1,8 @@
 #version 120
 
-// FIX: Removed "const int ENABLE_CLOUDS" — it blocked Iris from injecting the setting.
+// Iris option declarations
+const int ENABLE_CLOUDS = 1; // [0 1]
+
 #ifndef ENABLE_CLOUDS
 #define ENABLE_CLOUDS 1
 #endif
